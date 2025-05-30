@@ -1,18 +1,35 @@
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 public class Board {
     HashMap<Character, Coord[]> board;
+    boolean death;
+    int mines;
     String rows = "ABCDEFGHIJKLMNOP";
     
-    public Board(int b){
+    public Board(){
         board = new HashMap<Character, Coord[]>();
+        death = false;
+        mines = 0;
         for(int i = 0; i<16; i++){
             Coord[] nrow = new Coord[16];
             for(int ni = 0; ni<16; ni++){
                 nrow[ni] = new Coord(rows.charAt(i), ni, false, false, adjacentArrayContructor(rows.charAt(i), ni), false);
             }
             board.put(rows.charAt(i), nrow);
-            // board.put(rows.charAt(i), new Coord[16]);
+        }
+    }
+
+    public void plantMines(int m){
+        ArrayList<String> p = new ArrayList<String>();
+        mines = m;
+        while(p.size() <= m){
+            int rr = (int) (Math.random()*16);
+            int rc = (int) (Math.random()*16);
+            if(!p.contains(rows.charAt(rr) + String.valueOf(rc))){
+                board.get(rows.charAt(rr))[rc].setMine(true);
+                p.add(rows.charAt(rr) + String.valueOf(rc));
+            }
         }
     }
 
@@ -20,6 +37,7 @@ public class Board {
         StringBuilder o = new StringBuilder();
         o.append(" | 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|16|\n");
         for(char c : board.keySet()){
+            o.append(" |——|——|——|——|——|——|——|——|——|——|——|——|——|——|——|——|\n");
             StringBuilder wsb = new StringBuilder();
             wsb.append(c + "|");
             for(Coord wCoord : board.get(c)){
@@ -41,6 +59,7 @@ public class Board {
         StringBuilder o = new StringBuilder();
         o.append(" | 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|16|\n");
         for(char c : board.keySet()){
+            o.append(" |——|——|——|——|——|——|——|——|——|——|——|——|——|——|——|——|\n");
             StringBuilder wsb = new StringBuilder();
             wsb.append(c + "|");
             for(Coord wCoord : board.get(c)){
@@ -113,6 +132,22 @@ public class Board {
 
     public HashMap<Character, Coord[]> getBoard() {
         return board;
+    }
+
+    public boolean isDeath() {
+        return death;
+    }
+
+    public void setDeath(boolean death) {
+        this.death = death;
+    }
+
+    public int getMines() {
+        return mines;
+    }
+
+    public void setMines(int mines) {
+        this.mines = mines;
     }
 
     @Override
