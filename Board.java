@@ -6,7 +6,7 @@ public class Board {
     boolean death;
     int mines;
     String rows = "ABCDEFGHIJKLMNOP";
-    
+
     public Board(){
         board = new HashMap<Character, Coord[]>();
         death = false;
@@ -35,14 +35,18 @@ public class Board {
 
     public void displayBoard(){
         StringBuilder o = new StringBuilder();
-        o.append(" | 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|16|\n");
+        o.append(Colors.cyan + " | 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|16|\n" + Colors.reset);
         for(char c : board.keySet()){
             o.append(" |——|——|——|——|——|——|——|——|——|——|——|——|——|——|——|——|\n");
             StringBuilder wsb = new StringBuilder();
-            wsb.append(c + "|");
+            wsb.append(Colors.cyan + c + Colors.reset + "|");
             for(Coord wCoord : board.get(c)){
                 if(wCoord.isRevealed()){
-                    wsb.append(" " + adjacentMines(wCoord) + "|");
+                    if(adjacentMines(wCoord) == 0){
+                        wsb.append("  |");
+                    } else{
+                        wsb.append(" " + adjacentMines(wCoord) + "|");
+                    }
                 } else if(wCoord.isFlagged()){
                     wsb.append(" F|");
                 } else{
@@ -57,14 +61,14 @@ public class Board {
 
     public void answerKey(){
         StringBuilder o = new StringBuilder();
-        o.append(" | 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|16|\n");
+        o.append(Colors.cyan + " | 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|16|\n" + Colors.reset);
         for(char c : board.keySet()){
             o.append(" |——|——|——|——|——|——|——|——|——|——|——|——|——|——|——|——|\n");
             StringBuilder wsb = new StringBuilder();
-            wsb.append(c + "|");
+            wsb.append(Colors.cyan + c + Colors.reset + "|");
             for(Coord wCoord : board.get(c)){
                 if(wCoord.isMine()){
-                    wsb.append(" !|");
+                    wsb.append(Colors.red + " !" + Colors.reset + "|");
                 } else{
                     wsb.append(" " + Integer.toString(adjacentMines(wCoord)) + "|");
                 }
@@ -128,6 +132,36 @@ public class Board {
             }
         }
         return o;
+    }
+
+    public void clearAdjacentEmpties(Coord wc){
+        int i = 0;
+        String[] adjC = wc.getAdj();
+        while(adjC[i] != null){
+            if(adjacentMines(board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))]) == 0 && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isRevealed() && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isFlagged() && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isMine()){
+                board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].setRevealed(true);
+                revealSurroundings(board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))]);
+                clearAdjacentEmpties(board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))]);
+            }
+            i++;
+            if(i>7){
+                break;
+            }
+        }
+    }
+
+    public void revealSurroundings(Coord wc){
+        int i = 0;
+        String[] adjC = wc.getAdj();
+        while(adjC[i] != null){
+            if(adjacentMines(board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))]) != 0 && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isMine() && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isFlagged()){
+                board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].setRevealed(true);
+            }
+            i++;
+            if(i>7){
+                break;
+            }
+        }
     }
 
     public HashMap<Character, Coord[]> getBoard() {
