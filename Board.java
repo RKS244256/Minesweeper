@@ -134,14 +134,14 @@ public class Board {
         return o;
     }
 
-    public void clearAdjacentEmpties(Coord wc){
+    public void revealAdjacentEmpties(Coord wc){
         int i = 0;
         String[] adjC = wc.getAdj();
         while(adjC[i] != null){
             if(adjacentMines(board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))]) == 0 && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isRevealed() && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isFlagged() && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isMine()){
                 board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].setRevealed(true);
                 revealSurroundings(board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))]);
-                clearAdjacentEmpties(board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))]);
+                revealAdjacentEmpties(board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))]);
             }
             i++;
             if(i>7){
