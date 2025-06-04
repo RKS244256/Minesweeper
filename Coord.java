@@ -6,7 +6,6 @@ public class Coord {
     boolean flagged;
     String[] adj;
     boolean revealed;
-
     
     public Coord(char row, int col, boolean mine, boolean flagged, String[] adj, boolean revealed) {
         this.row = row;
@@ -22,7 +21,6 @@ public class Coord {
     public int getCol() {
         return col;
     }
-
     public boolean isMine() {
         return mine;
     }

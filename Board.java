@@ -1,36 +1,62 @@
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+
 public class Board {
     HashMap<Character, Coord[]> board;
     boolean death;
     int mines;
-    String rows = "ABCDEFGHIJKLMNOP";
+    final String rows = "ABCDEFGHIJKLMNOP"; //Constant stating available rows.
 
     public Board(){
-        board = new HashMap<Character, Coord[]>();
-        death = false;
-        mines = 0;
-        for(int i = 0; i<16; i++){
-            Coord[] nrow = new Coord[16];
+        board = new HashMap<Character, Coord[]>(); // Creates a Hashmap using characters A-P as rows with an array of Coord objects.
+        death = false;// No one died yet therefore death = false
+        mines = 0; // When creating the board, there aren't any mines yet. Therefore, mines = 0 until plantMines() or plantMinesFromFile() is called.
+        for(int i = 0; i<16; i++){//Nested loop to populate the board with "empty" coords. 
+        //Empty coords are defined as not revealed, not mined, and not flagged
+            Coord[] nrow = new Coord[16]; // Creates a new array of Coord objects which serve as a row for the current column.
             for(int ni = 0; ni<16; ni++){
-                nrow[ni] = new Coord(rows.charAt(i), ni, false, false, adjacentArrayContructor(rows.charAt(i), ni), false);
+                nrow[ni] = new Coord(rows.charAt(i), ni, false, false, adjacentArrayContructor(rows.charAt(i), ni), false); // Populates row with empty coords.
             }
-            board.put(rows.charAt(i), nrow);
+            board.put(rows.charAt(i), nrow); // Adds new key pair (Row, Empty Coord Array)
         }
     }
 
-    public void plantMines(int m){
-        ArrayList<String> p = new ArrayList<String>();
+    public void plantMines(int m){ // Takes in a specified number of mines.
+        ArrayList<String> p = new ArrayList<String>(); //An array of coords of "planted" mines in string form. Ensures the algorithm doesn't plant mines where it already has,
         mines = m;
-        while(p.size() <= m){
-            int rr = (int) (Math.random()*16);
-            int rc = (int) (Math.random()*16);
-            if(!p.contains(rows.charAt(rr) + String.valueOf(rc))){
-                board.get(rows.charAt(rr))[rc].setMine(true);
-                p.add(rows.charAt(rr) + String.valueOf(rc));
+        while(p.size() <= m){ // Checks whether the array size is m (ie, there are m mines) and continues to generate random coords to plant mines if not.
+            int rr = (int) (Math.random()*16); // Picks a "random row"
+            int rc = (int) (Math.random()*16); // Picks a "random column"
+            if(!p.contains(rows.charAt(rr) + String.valueOf(rc))){ // Checks if mine already exists at the coord generated
+                board.get(rows.charAt(rr))[rc].setMine(true); // Plants mine by setting coord's "mine" property to true
+                p.add(rows.charAt(rr) + String.valueOf(rc)); // Adds coord to p to ensure mines aren't planted at this coord again
             }
         }
+    }
+
+    public int plantMinesFromFile(){
+        int o = 0;
+        try{
+            File f = new File("custom.txt");
+            Scanner rf = new Scanner(f).useDelimiter(",");
+            while(rf.hasNext()){
+                String wc = rf.next().toUpperCase();
+                if(wc.matches("[A-P]([1-9]|1[0-6])")){
+                    board.get(wc.charAt(0))[Integer.parseInt(wc.substring(1))-1].setMine(true);
+                    o++;
+                }
+            }
+            rf.close();
+            mines = o;
+            
+        } catch(FileNotFoundException e){
+            o = 0;
+        }
+        return o;
     }
 
     public void displayBoard(){
@@ -45,10 +71,10 @@ public class Board {
                     if(adjacentMines(wCoord) == 0){
                         wsb.append("  |");
                     } else{
-                        wsb.append(" " + adjacentMines(wCoord) + "|");
+                        wsb.append(Colors.yellow + " " + adjacentMines(wCoord) + Colors.reset + "|");
                     }
                 } else if(wCoord.isFlagged()){
-                    wsb.append(" F|");
+                    wsb.append(Colors.red + " F" + Colors.reset + "|");
                 } else{
                     wsb.append(" *|");
                 }
@@ -70,7 +96,7 @@ public class Board {
                 if(wCoord.isMine()){
                     wsb.append(Colors.red + " !" + Colors.reset + "|");
                 } else{
-                    wsb.append(" " + Integer.toString(adjacentMines(wCoord)) + "|");
+                    wsb.append(" " + Colors.yellow + Integer.toString(adjacentMines(wCoord)) + Colors.reset + "|");
                 }
             }
             wsb.append("\n");
