@@ -3,15 +3,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.io.File;
-import java.io.IOException;
 import java.io.FileNotFoundException;
 
 public class Board {
-    HashMap<Character, Coord[]> board;
-    boolean death;
-    int mines;
-    final String rows = "ABCDEFGHIJKLMNOP"; //Constant stating available rows.
+    /**
+     * The structure for coords and is what is ultimately manipulated and displayed during gameplay.
+     * Organized via rows as keys and array indices as columns.
+     */
+    private HashMap<Character, Coord[]> board;
+    /**
+     * Checks whether player has died via revealing a mine.
+     */
+    private boolean death;
+    /**
+     * Amount of mines on the board
+     */
+    private int mines;
+    /**
+     * A constant which contains available rows. Used for input validation, conversions from index to character, etc.
+     */
+    private final String rows = "ABCDEFGHIJKLMNOP";
 
+    /**
+     * Constructor for the board. Generates a new board filled with empty tiles and creates the variables which keep track of the game.
+     */
     public Board(){
         board = new HashMap<Character, Coord[]>(); // Creates a Hashmap using characters A-P as rows with an array of Coord objects.
         death = false;// No one died yet therefore death = false
@@ -26,6 +41,10 @@ public class Board {
         }
     }
 
+    /**
+     * @param m amount of "mines" desired to be placed on the board.
+     * Randomly sets the mine attribute of Coords within the board hashmap to true, "planting mines"
+     */
     public void plantMines(int m){ // Takes in a specified number of mines.
         ArrayList<String> p = new ArrayList<String>(); //An array of coords of "planted" mines in string form. Ensures the algorithm doesn't plant mines where it already has,
         mines = m;
@@ -39,6 +58,10 @@ public class Board {
         }
     }
 
+    /**
+     * @return amount of mines which were ultimately planted.
+     * Reads coordinates separated by commas from "custom.txt" and plants mines accordingly.
+     */
     public int plantMinesFromFile(){
         int o = 0; // Integer output <- Returns number of mines planted from file.
         try{
@@ -57,9 +80,12 @@ public class Board {
         } catch(FileNotFoundException e){ // Game won't error out and rather, sets the output to 0 which tells the game the file is either missing or invalid as it doesn't have any proper mine coordinates.
             o = 0;
         }
-        return o;
+        return o; // If 0, the file is considered invalid by the main game program and errors are handled there.
     }
     
+    /**
+     * Displays the board in a formatted version in console.
+     */
     public void displayBoard(){
         StringBuilder o = new StringBuilder(); // "Output" string that is to be displayed when answer key is requested
         o.append(Colors.cyan + " | 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|16|\n" + Colors.reset); // Display top row (columns). Hardcoded.
@@ -86,6 +112,9 @@ public class Board {
         System.out.println(o); // Display game board
     }
 
+    /**
+     * Displays the answer key in console
+     */
     public void answerKey(){
         StringBuilder o = new StringBuilder(); // "Output" string that is to be displayed when answer key is requested
         o.append(Colors.cyan + " | 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|16|\n" + Colors.reset); // Display top row (columns). Hardcoded.
@@ -106,10 +135,17 @@ public class Board {
         System.out.println(o); // Prints the output to console (the game)
     }
 
+    /**
+     * @param r Specified "row"
+     * @param c Specified "column"
+     * @return an array of adjacent tiles in the format of row and column which can then be broken up to find the tile within the hashmap
+     * Finds the adjacent tiles from a row and column.
+     */
     String[] adjacentArrayContructor(char r, int c){ // Constructs an array of coordinates stored as Strings after taking a coord in the form of a char "row" and int "column"
         int wr = rows.indexOf(r); // Converts the char row into a integer "Working Row"
-        int i = 0; // Iterator to traverse the array below.
+        int i = 0; // Iterator to traverse and update the array below.
         String[] o = new String[8]; // Output array. It will be filled with whatever adjacent coordinates in string form. Any other slots are filled with null values.
+        //The entire sequence below is to determine whether the adjacent coordinates are valid. A1 has only 3 adjacent tiles whereas B2 has 8.
         if(wr-1 >= 0 && c-1 >= 0){
             o[i] = rows.charAt(wr-1) + String.valueOf(c-1);
             i++;
@@ -145,6 +181,10 @@ public class Board {
         return o;
     }
 
+    /**
+     * @param wc The "working coord" in question
+     * @return the number of adjacent mines
+     */
     int adjacentMines(Coord wc){ // Returns the number of adjacent mines of the coord specified in the argument.
         int o = 0; // Integer output of the number of adjacent mines
         int i = 0; // Iterator, iterates through the String array below
@@ -161,6 +201,10 @@ public class Board {
         return o;
     }
 
+    /**
+     * @param wc The "working coord" in question
+     * Sets the reveal attribute of adjacent tiles to true if they have 0 adjacent mines. This then recursively propagates until all adjacent "empty" tiles are revealed
+     */
     public void revealAdjacentEmpties(Coord wc){// Updates the revealed property of adjacent tiles with 0 adjacent mines to true. Takes a Coord as the "Working coord"
         int i = 0;
         String[] adjC = wc.getAdj(); // Retrieves "Adjacent Coords" from "adj" property of the coord
@@ -177,12 +221,17 @@ public class Board {
         }
     }
 
+    /**
+     * @param wc The "working coord" in question
+     * Sets the reveal attribute of adjacent tiles to true as long as they are not already modified by the user or have 0 adjacent mines.
+     * If they have 0 adjacent mines, it's handled by revealAdjacentEmpties
+     */
     public void revealSurroundings(Coord wc){
         int i = 0;
         String[] adjC = wc.getAdj();
         while(adjC[i] != null){
-            if(adjacentMines(board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))]) != 0 && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isMine() && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isFlagged()){
-                board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].setRevealed(true);
+            if(adjacentMines(board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))]) != 0 && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isMine() && !board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].isFlagged()){ // Checks if a specified coord is flagged, a mine, or has 0 adjacent mines. Adjacent tiles with 0 adjacent mines are handled by revealAdjacentEmpties()
+                board.get(adjC[i].charAt(0))[Integer.parseInt(adjC[i].substring(1))].setRevealed(true); // Reveals the tile
             }
             i++;
             if(i>7){
@@ -209,6 +258,10 @@ public class Board {
 
     public void setMines(int mines) {
         this.mines = mines;
+    }
+
+    public String getRows() {
+        return rows;
     }
 
     @Override

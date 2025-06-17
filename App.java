@@ -25,8 +25,8 @@ public class App {
                 } else if(d.equals("3")){
                     tMines = 60;
                 } else if(d.equals("4")){
-                    tMines = game.plantMinesFromFile();
-                    if(tMines == 0){
+                    tMines = game.plantMinesFromFile(); // Plants mines from the file and sets the total mines to the number of mines it plants.
+                    if(tMines == 0){ // If no mines are planted, stands to reason the file is faulty or non-existent
                         System.out.println("Invalid File - File either does not exist or has invalid formatting. Ensure file exists and consists of valid coordinates separated by commas");
                         try{
                             new File("custom.txt").createNewFile();
@@ -39,10 +39,10 @@ public class App {
                     System.out.println("Enter number of mines");
                     d = userIn.nextLine();
                     if(d.matches("[0-9]+")){
-                        if(Integer.parseInt(d) > 0 && Integer.parseInt(d) <= 256){
+                        if(Integer.parseInt(d) > 0 && Integer.parseInt(d) <= 256){//Checks whether input is within the amount of possible mines.
                             tMines = Integer.parseInt(d);
                         } else{
-                            System.out.println("Invalid Input - Input should be between 0 and 256");
+                            System.out.println("Invalid Input - Input should be between 1 and 256");
                             userIn.nextLine();
                             continue;
                         }
@@ -62,13 +62,13 @@ public class App {
                         continue;
                     }
                     try{
-                        File f = new File("instructions.txt");
-                        Scanner rf = new Scanner(f).useDelimiter("\n");
-                        char c;
-                        char wrc;
-                        int wcc;
+                        File f = new File("instructions.txt"); // Loads Instruction  "File"
+                        Scanner rf = new Scanner(f).useDelimiter(","); // Sets up a scanner to "read file" 
+                        char c; // "Command"
+                        char wrc; // "Working Row Coord"
+                        int wcc; // "Working Column Coord"
                         while(rf.hasNext()){
-                            String wc = rf.nextLine().toUpperCase();
+                            String wc = rf.next().toUpperCase();
                             System.out.println(wc);
                             wrc = wc.charAt(0);
                             if(wc.matches("[A-P][1-9](F|U|R)")){
@@ -182,18 +182,24 @@ public class App {
                 userIn.nextLine();
                 break;
             }
-            // game.answerKey();
             game.displayBoard();
             System.out.println(flaggedTiles + "/" + tMines);
             System.out.println("Enter coordinates (Row & Column - eg. A1)");
-            String in = userIn.nextLine().toUpperCase();
+            String in = userIn.nextLine().toUpperCase(); // "Input"
+            if(in.equals("")){ // If the user just presses enter, reveals answer key (debug)
+                clearScreen();
+                game.answerKey();
+                userIn.nextLine();
+                clearScreen();
+                continue;
+            }
             if(in.length() < 2 || in.length()>4){
                 System.out.println("Invalid Input - Input should be 2-4 Characters");
                 userIn.nextLine();
                 clearScreen();
                 continue;
             }
-            if(!game.rows.contains(String.valueOf(in.charAt(0))) || !in.substring(1).matches("[0-9]{1,}")){
+            if(!game.getRows().contains(String.valueOf(in.charAt(0))) || !in.substring(1).matches("[0-9]{1,}")){
                 System.out.println("Invalid Input - Input must consist of a valid row and column");
                 userIn.nextLine();
                 clearScreen();
@@ -205,8 +211,8 @@ public class App {
                 clearScreen();
                 continue;
             }
-            char wrc = in.charAt(0);
-            int wcc = Integer.parseInt(in.substring(1)) - 1;
+            char wrc = in.charAt(0); // "Working Row Coord"
+            int wcc = Integer.parseInt(in.substring(1)) - 1; // "Working Column Coord"
             System.out.println("Flag (F)/ Unflag (U)/ Reveal (R)/Back (B)?");
             in = userIn.nextLine().toUpperCase();
             if(in.length() != 1){
@@ -215,7 +221,7 @@ public class App {
                 clearScreen();
                 continue;
             }
-            if(!"FURB".contains(in)){
+            if(!in.matches("F|U|R|B")){
                 System.out.println("Invalid Input - Input must be \"F\", \"U\", \"R\", or \"B\"");
                 userIn.nextLine();
                 clearScreen();
@@ -276,7 +282,7 @@ public class App {
                     continue;
                 }
                 game.revealAdjacentEmpties(game.getBoard().get(wrc)[wcc]);
-            } else{}
+            }
             clearScreen();
         }
         userIn.close();
