@@ -41,30 +41,57 @@ public class Coord {
         this.adj = adj;
         this.revealed = revealed;
     }
+    /**
+     * @return the row where the coord is on the board
+     */
     public char getRow() {
         return row;
     }
+    /**
+     * @return the column where the coord is on the board
+     */
     public int getCol() {
         return col;
     }
+    /**
+     * @return if the coord is a mine
+     */
     public boolean isMine() {
         return mine;
     }
+    /**
+     * @param mine sets if a mine (true) or not (false)
+     */
     public void setMine(boolean mine) {
         this.mine = mine;
     }
+    /**
+     * @return if the coord is flagged
+     */
     public boolean isFlagged() {
         return flagged;
     }
+    /**
+     * @param mine sets if flagged (true) or not (false)
+     */
     public void setFlagged(boolean flagged) {
         this.flagged = flagged;
     }
+    /**
+     * @return adjacent tiles/coords
+     */
     public String[] getAdj() {
         return adj;
     }
+    /**
+     * @return if the coord is revealed
+     */
     public boolean isRevealed() {
         return revealed;
     }
+    /**
+     * @param mine sets if revealed (true) or not (false)
+     */
     public void setRevealed(boolean revealed) {
         this.revealed = revealed;
     }

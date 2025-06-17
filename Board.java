@@ -240,26 +240,44 @@ public class Board {
         }
     }
 
+    /**
+     * @return game board with all its Coord data in the form of a hashmap
+     */
     public HashMap<Character, Coord[]> getBoard() {
         return board;
     }
 
+    /**
+     * @return if player is dead (tripped mine)
+     */
     public boolean isDeath() {
         return death;
     }
 
+    /**
+     * @param death true (yes) or false (no)
+     */
     public void setDeath(boolean death) {
         this.death = death;
     }
 
+    /**
+     * @return number of mines on board
+     */
     public int getMines() {
         return mines;
     }
 
+    /**
+     * @param mines mines on the board
+     */
     public void setMines(int mines) {
         this.mines = mines;
     }
 
+    /**
+     * @return available rows in a string
+     */
     public String getRows() {
         return rows;
     }
